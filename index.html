@@ -116,9 +116,21 @@ color:green;
 
 <select id="size">
 
-<option>10畳以下</option>
+<option>6畳</option>
 
-<option>14畳以上</option>
+<option>8畳</option>
+
+<option>10畳</option>
+
+<option>12畳</option>
+
+<option>14畳</option>
+
+<option>18畳</option>
+
+<option>20畳以上</option>
+
+
 
 </select>
 
@@ -198,13 +210,45 @@ function calc(){
 
 let total=0;
 
-if(document.getElementById("size").value=="10畳以下"){
+if(document.getElementById("size").value=="6畳"){
 
-total+=20350;
+    total+=18000;
 
-}else{
+}
 
-total+=24750;
+else if(document.getElementById("size").value=="8畳"){
+
+    total+=19000;
+
+}
+
+else if(document.getElementById("size").value=="10畳"){
+
+    total+=20350;
+
+}
+
+else if(document.getElementById("size").value=="12畳"){
+
+    total+=22000;
+
+}
+
+else if(document.getElementById("size").value=="14畳"){
+
+    total+=24750;
+
+}
+
+else if(document.getElementById("size").value=="18畳"){
+
+    total+=28000;
+
+}
+
+else if(document.getElementById("size").value=="20畳以上"){
+
+    total+=32000;
 
 }
 
