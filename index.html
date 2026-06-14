@@ -1,309 +1,285 @@
 <!DOCTYPE html>
-
 <html lang="ja">
-
 <head>
-
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>エアコン工事費診断</title>
-
+<title>エアコン診断</title>
 <style>
-
+*{box-sizing:border-box}
 body{
-
-font-family:sans-serif;
-
-background:#f5f7fa;
-
-padding:20px;
-
-max-width:900px;
-
-margin:auto;
-
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;
+  background:#eef4ff;
+  color:#111;
 }
-
-h1{
-
-font-size:42px;
-
-text-align:center;
-
+.app{
+  max-width:520px;
+  margin:0 auto;
+  min-height:100vh;
+  padding:16px;
 }
-
+.header{
+  background:#005bac;
+  color:white;
+  padding:18px 14px;
+  border-radius:18px;
+  text-align:center;
+  font-size:26px;
+  font-weight:900;
+  line-height:1.3;
+}
 .card{
-
-background:white;
-
-padding:25px;
-
-border-radius:20px;
-
-margin-bottom:20px;
-
-box-shadow:0 2px 10px rgba(0,0,0,0.1);
-
+  background:white;
+  margin-top:16px;
+  padding:20px;
+  border-radius:20px;
+  box-shadow:0 6px 18px #0001;
 }
-
-label{
-
-font-size:24px;
-
-font-weight:bold;
-
-display:block;
-
-margin-bottom:10px;
-
+.title{
+  font-size:24px;
+  font-weight:900;
+  text-align:center;
+  color:#005bac;
+  margin-bottom:10px;
 }
-
-select{
-
-width:100%;
-
-padding:15px;
-
-font-size:22px;
-
-margin-bottom:20px;
-
+.text{
+  font-size:17px;
+  line-height:1.7;
+  text-align:center;
 }
-
-button{
-
-width:100%;
-
-padding:20px;
-
-font-size:28px;
-
-background:#007aff;
-
-color:white;
-
-border:none;
-
-border-radius:15px;
-
+.btn{
+  width:100%;
+  border:none;
+  border-radius:16px;
+  padding:18px 14px;
+  margin-top:12px;
+  font-size:20px;
+  font-weight:900;
+  background:#005bac;
+  color:white;
 }
-
-#result{
-
-margin-top:25px;
-
-font-size:32px;
-
-font-weight:bold;
-
-color:green;
-
+.btn.sub{
+  background:white;
+  color:#005bac;
+  border:3px solid #005bac;
 }
-
+.btn.gray{
+  background:#666;
+}
+.small{
+  font-size:14px;
+  color:#555;
+  line-height:1.6;
+  margin-top:12px;
+}
+.result{
+  font-size:30px;
+  font-weight:900;
+  color:#d60000;
+  text-align:center;
+  margin:18px 0;
+}
+.note{
+  background:#fff4d8;
+  border-left:6px solid #ffb300;
+  padding:12px;
+  border-radius:12px;
+  font-size:15px;
+  line-height:1.6;
+  margin-top:14px;
+}
+.hide{display:none}
 </style>
-
 </head>
 
 <body>
-
-<h1>エアコン工事費診断</h1>
-
-<div class="card">
-
-<label>何畳用ですか？</label>
-
-<select id="size">
-
-<option>6畳</option>
-
-<option>8畳</option>
-
-<option>10畳</option>
-
-<option>12畳</option>
-
-<option>14畳</option>
-
-<option>18畳</option>
-
-<option>20畳以上</option>
-
-
-
-</select>
-
-<label>交換ですか？</label>
-
-<select id="replace">
-
-<option>いいえ</option>
-
-<option>はい</option>
-
-</select>
-
-<label>室外機設置方法</label>
-
-<select id="mount">
-
-<option>標準</option>
-
-<option>壁掛け</option>
-
-<option>天吊り</option>
-
-</select>
-
-<label>隠ぺい配管ですか？</label>
-
-<select id="pipe">
-
-<option>いいえ</option>
-
-<option>はい</option>
-
-</select>
-
-<label>東京都民ですか？</label>
-
-<select id="tokyo">
-
-<option>いいえ</option>
-
-<option>はい</option>
-
-</select>
-
-<label>利用年数</label>
-
-<select id="years">
-
-<option>15年未満</option>
-
-<option>15年超過</option>
-
-</select>
-
-<label>対象者</label>
-
-<select id="person">
-
-<option>該当なし</option>
-
-<option>65歳以上</option>
-
-<option>障がい者</option>
-
-</select>
-
-<button onclick="calc()">概算工事費を表示</button>
-
-<div id="result"></div>
-
+<div class="app">
+  <div class="header">エアコン<br>かんたん診断</div>
+  <div id="screen" class="card"></div>
 </div>
 
 <script>
+let mode = "";
+let answers = {};
+let total = 0;
 
-function calc(){
+const screen = document.getElementById("screen");
 
-let total=0;
+function showHome(){
+  mode = "";
+  answers = {};
+  total = 0;
 
-if(document.getElementById("size").value=="6畳"){
-
-    total+=18000;
-
+  screen.innerHTML = `
+    <div class="title">診断を選んでください</div>
+    <div class="text">スマホでかんたんに確認できます</div>
+    <button class="btn" onclick="startMaker()">エアコンメーカー診断</button>
+    <button class="btn sub" onclick="startCost()">工事費診断</button>
+  `;
 }
 
-else if(document.getElementById("size").value=="8畳"){
-
-    total+=19000;
-
+function startMaker(){
+  mode = "maker";
+  screen.innerHTML = `
+    <div class="title">メーカー診断</div>
+    <div class="text">重視したいポイントは？</div>
+    <button class="btn" onclick="makerResult('daikin')">冷暖房の安定感</button>
+    <button class="btn" onclick="makerResult('mitsubishi')">お手入れのしやすさ</button>
+    <button class="btn" onclick="makerResult('panasonic')">空気清浄・清潔機能</button>
+    <button class="btn" onclick="makerResult('hitachi')">凍結洗浄など清潔重視</button>
+    <button class="btn gray" onclick="showHome()">戻る</button>
+  `;
 }
 
-else if(document.getElementById("size").value=="10畳"){
+function makerResult(type){
+  let name = "";
+  let comment = "";
 
-    total+=20350;
+  if(type === "daikin"){
+    name = "ダイキン";
+    comment = "空調専門メーカー。冷暖房の安定感を重視する方におすすめです。";
+  }
+  if(type === "mitsubishi"){
+    name = "三菱";
+    comment = "ムーブアイやお手入れ性を重視したい方におすすめです。";
+  }
+  if(type === "panasonic"){
+    name = "パナソニック";
+    comment = "ナノイーなど清潔・空気ケアを重視したい方におすすめです。";
+  }
+  if(type === "hitachi"){
+    name = "日立";
+    comment = "凍結洗浄など内部の清潔感を重視したい方におすすめです。";
+  }
 
+  screen.innerHTML = `
+    <div class="title">おすすめメーカー</div>
+    <div class="result">${name}</div>
+    <div class="text">${comment}</div>
+    <div class="note">※最終的にはお部屋の広さ・設置環境・ご予算に合わせてご案内します。</div>
+    <button class="btn" onclick="showHome()">最初に戻る</button>
+  `;
 }
 
-else if(document.getElementById("size").value=="12畳"){
-
-    total+=22000;
-
+function startCost(){
+  answers = {};
+  total = 0;
+  qReplace();
 }
 
-else if(document.getElementById("size").value=="14畳"){
-
-    total+=24750;
-
+function qReplace(){
+  screen.innerHTML = `
+    <div class="title">買い替えですか？</div>
+    <button class="btn" onclick="answers.replace='yes'; qTokyo()">買い替え</button>
+    <button class="btn sub" onclick="answers.replace='no'; qPlace()">新規取り付け</button>
+    <button class="btn gray" onclick="showHome()">戻る</button>
+  `;
 }
 
-else if(document.getElementById("size").value=="18畳"){
-
-    total+=28000;
-
+function qTokyo(){
+  screen.innerHTML = `
+    <div class="title">東京都にお住まいですか？</div>
+    <button class="btn" onclick="answers.tokyo='yes'; qSupport()">はい</button>
+    <button class="btn sub" onclick="answers.tokyo='no'; qPlace()">いいえ</button>
+  `;
 }
 
-else if(document.getElementById("size").value=="20畳以上"){
-
-    total+=32000;
-
+function qSupport(){
+  screen.innerHTML = `
+    <div class="title">65歳以上または障害者手帳をお持ちですか？</div>
+    <button class="btn" onclick="answers.support='yes'; qPlace()">はい</button>
+    <button class="btn sub" onclick="answers.support='no'; qYears()">いいえ</button>
+  `;
 }
 
-if(document.getElementById("replace").value=="はい"){
-
-total+=6600;
-
+function qYears(){
+  screen.innerHTML = `
+    <div class="title">今のエアコンは何年使用していますか？</div>
+    <button class="btn" onclick="answers.years='10over'; qPlace()">10年以上</button>
+    <button class="btn sub" onclick="answers.years='under10'; qPlace()">10年未満</button>
+  `;
 }
 
-if(document.getElementById("mount").value=="壁掛け"){
-
-total+=16500;
-
+function qPlace(){
+  screen.innerHTML = `
+    <div class="title">室外機の設置場所は？</div>
+    <button class="btn" onclick="answers.place='standard'; qPipe()">標準設置</button>
+    <button class="btn sub" onclick="answers.place='wall'; qPipe()">壁面・屋根・二段置きなど</button>
+    <button class="btn sub" onclick="answers.place='high'; qPipe()">2階→1階 / 3階→1階</button>
+  `;
 }
 
-if(document.getElementById("mount").value=="天吊り"){
-
-total+=16500;
-
+function qPipe(){
+  screen.innerHTML = `
+    <div class="title">配管の種類は？</div>
+    <button class="btn" onclick="answers.pipe='standard'; qElevator()">標準配管</button>
+    <button class="btn sub" onclick="answers.pipe='hidden'; qElevator()">隠蔽配管</button>
+    <button class="btn sub" onclick="answers.pipe='unknown'; qElevator()">わからない</button>
+  `;
 }
 
-if(document.getElementById("pipe").value=="はい"){
-
-total+=22000;
-
+function qElevator(){
+  screen.innerHTML = `
+    <div class="title">エレベーターはありますか？</div>
+    <button class="btn" onclick="answers.elevator='yes'; showCostResult()">ある</button>
+    <button class="btn sub" onclick="answers.elevator='no'; showCostResult()">ない</button>
+  `;
 }
 
-let text="概算工事費："+total.toLocaleString()+"円";
+function showCostResult(){
+  total = 0;
+  let details = [];
 
-if(
+  total += 16500;
+  details.push("標準工事費：16,500円");
 
-document.getElementById("tokyo").value=="はい" &&
+  if(answers.replace === "yes"){
+    total += 6600;
+    details.push("取り外し費：6,600円");
+  }
 
-document.getElementById("years").value=="15年超過" &&
+  if(answers.place === "wall"){
+    total += 14300;
+    details.push("特殊設置目安：14,300円〜");
+  }
 
-(
+  if(answers.place === "high"){
+    total += 22000;
+    details.push("高所配管目安：22,000円〜");
+  }
 
-document.getElementById("person").value=="65歳以上" ||
+  if(answers.pipe === "hidden"){
+    total += 11000;
+    details.push("隠蔽配管目安：11,000円〜");
+  }
 
-document.getElementById("person").value=="障がい者"
+  if(answers.elevator === "no"){
+    total += 3300;
+    details.push("階段作業目安：3,300円〜");
+  }
 
-)
+  let supportText = "";
+  if(answers.tokyo === "yes" && answers.support === "yes"){
+    supportText = "東京都の補助対象になる可能性があります。";
+  }else if(answers.tokyo === "yes" && answers.years === "10over"){
+    supportText = "使用年数により補助対象になる可能性があります。";
+  }else{
+    supportText = "補助対象外、または確認が必要です。";
+  }
 
-){
-
-text+="<br><br>東京都対象の可能性あり";
-
+  screen.innerHTML = `
+    <div class="title">診断結果</div>
+    <div class="text">概算工事費</div>
+    <div class="result">${total.toLocaleString()}円〜</div>
+    <div class="small">
+      ${details.map(d => "・" + d).join("<br>")}
+    </div>
+    <div class="note">${supportText}<br>※現地状況により金額が変わる場合があります。</div>
+    <button class="btn" onclick="showHome()">最初に戻る</button>
+  `;
 }
 
-document.getElementById("result").innerHTML=text;
-
-}
-
+showHome();
 </script>
-
 </body>
-
 </html>
